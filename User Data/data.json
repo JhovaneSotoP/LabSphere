@@ -1,0 +1,57 @@
+{
+    "DNP": {
+        "REGISTER": [
+            "CUTTING",
+            "CLEANING"
+        ],
+        "CUTTING": [
+            "CLEANING"
+        ],
+        "CLEANING": [
+            "DYEING"
+        ],
+        "DYEING": [
+            "DRYING"
+        ],
+        "DRYING": [
+            "EPOXY"
+        ],
+        "EPOXY": [
+            "PULL TEST"
+        ],
+        "PULL TEST": [
+            "INSPECTION"
+        ],
+        "INSPECTION": [
+            "REPORTING"
+        ],
+        "REPORTING": [
+            "END"
+        ]
+    },
+    "XS": {
+        "REGISTER": [
+            "CUTTING"
+        ],
+        "CUTTING": [
+            "ENCAPSULATION"
+        ],
+        "ENCAPSULATION": [
+            "GRINDING"
+        ],
+        "GRINDING": [
+            "POLISHING"
+        ],
+        "POLISHING": [
+            "INSPECTION"
+        ],
+        "INSPECTION": [
+            "REPORTING",
+            "POLISHING",
+            "GRINDING"
+        ],
+        "REPORTING": [
+            "END"
+        ]
+    }
+}
