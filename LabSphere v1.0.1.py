@@ -2,7 +2,8 @@ import json
 import re
 from datetime import datetime
 import sqlite3
-from rutaNodos import bfs_shortest_path
+from collections import deque
+
 
 usuario="XXXXXX"
 
@@ -13,6 +14,29 @@ with open("User Data/data.json", "r") as file:
 def tiempoActual():
   return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+def bfs_shortest_path(flow_type, start, end):
+    with open("User Data/data.json", "r") as file:
+        graph = json.load(file)
+    
+    graph=graph[flow_type]
+    # Cola para nodos pendientes de visitar: (nodo_actual, distancia)
+    queue = deque([(start, 0)])
+    visited = set()  # Nodos visitados
+
+    while queue:
+        node, distance = queue.popleft()
+
+        if node == end:
+            return distance  # Retornar la distancia al destino
+
+        if node not in visited:
+            visited.add(node)
+            # Agregar vecinos no visitados a la cola
+            for neighbor in graph.get(node, []):
+                if neighbor not in visited:
+                    queue.append((neighbor, distance + 1))
+
+    return -1  # Retornar -1 si no hay ruta
 #Clase de base de datos para conexion futura
 class dataBase():
   def __init__(self):
