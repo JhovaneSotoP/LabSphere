@@ -610,7 +610,6 @@ def laboratorio(proceso):
 
 
 while(1):
-
     #Solicitar un QR
     data=input("Scan a QR to continue: ").upper()
     #Procesar QR
@@ -631,6 +630,13 @@ while(1):
       print("QR invalido")
       continue
 
+    if tipo=="USR":
+          usuario=proceso
+
     #Validar tipo
-    if tipo=="LAB":
-      laboratorio(proceso)
+    if usuario=="XXXXXX":
+       print("Please define a user to continue")
+    else:
+        if tipo=="LAB":
+          laboratorio(proceso)
+      
