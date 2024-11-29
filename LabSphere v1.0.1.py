@@ -274,9 +274,45 @@ class dataBase():
     cursor.execute("UPDATE SAMPLES SET PERCENTAGE = ? WHERE SERIAL = ? AND COMPONENT = ?", (percentaje, serial, sample))
     self.conn.commit()
     self.conn.close()
+  
+  def actualizarPorcentajeCaso(self,serial,percentaje):
+    self.conn = sqlite3.connect('User Data/data.db')
+    cursor = self.conn.cursor()
+    cursor.execute("UPDATE CASES SET PERCENTAGE = ? WHERE SERIAL = ?", (percentaje, serial))
+    self.conn.commit()
+    self.conn.close()
+  
+  def muestrasPorcentaje(self,serial):
+    self.conn = sqlite3.connect('User Data/data.db')
+    cursor = self.conn.cursor()
+    cursor.execute("SELECT PERCENTAGE FROM SAMPLES WHERE SERIAL = ?", (serial,))
+    result = cursor.fetchall()
+    self.conn.close()
+    
+    salida=[]
+    for n in result:
+       salida.append(result[0])
+    
+    return salida
 
+  def extraerFlujoMenor(self,serial):
+    self.conn = sqlite3.connect('User Data/data.db')
+    cursor = self.conn.cursor()
+    cursor.execute("SELECT FLOW_CUR FROM SAMPLES WHERE SERIAL = ? ORDER BY PERCENTAGE ASC LIMIT 1", (serial,))
+    result = cursor.fetchall()
+    self.conn.close()
+    return result
+  
+  def actualizarFlujoCaso(self,serial,flujo):
+    self.conn = sqlite3.connect('User Data/data.db')
+    cursor = self.conn.cursor()
+    cursor.execute("UPDATE CASES SET STATUS = ? WHERE SERIAL = ?", (flujo, serial))
+    self.conn.commit()
+    self.conn.close()
+  
   def cerrar(self):
     self.conn.close()
+
 
 
 #clase conexion lab con base de datos
@@ -306,7 +342,7 @@ class conexionLab(dataBase):
           case_name=MP
 
         fechaActual=tiempoActual()
-        self.dataBase.registrarCaso(serial,case_name,modelo,tipoProceso,len(componentes),requisitor,MP,tiempo,fechaActual,"REGISTER",0.0,"")
+        self.dataBase.registrarCaso(serial,case_name,modelo,tipoProceso,len(componentes),requisitor,MP,tiempo,"","REGISTER",0.0,"")
 
         #Registar samples and samples changes
         #SERIAL, COMPONENT ,DATE_IN , DATE_OUT , FLOW_CUR ,NEXT_FLOW ,PERCENTAGE ,ON_HOLD ,PRIORITY ,COMMENTS
@@ -321,7 +357,7 @@ class conexionLab(dataBase):
           fechaActual=tiempoActual()
 
           #agregar cambios a tabla muestras
-          self.dataBase.registrarMuestras(serial,component,tiempo,fechaActual,"REGISTER",flujoConcatenados,0.0,0,0,"")
+          self.dataBase.registrarMuestras(serial,component,tiempo,"","REGISTER",flujoConcatenados,0.0,0,0,"")
           id=self.dataBase.ultimoIDAgregadoSample()
           #agregar movimiento in y out en los cambios
           self.dataBase.registrarCambio(id,"REGISTER","IN",tiempo,usuario)
@@ -387,14 +423,24 @@ class conexionLab(dataBase):
         self.actualizarPorcentajes(serial,sample)
     
     def actualizarPorcentajes(self, serial,sample):
-       id=self.dataBase.regresarID(serial,sample)
-       flujosMuestra=self.dataBase.retornarFlujos(id)
-       tipo=self.dataBase.regresarTipo(serial)
-       num1=len(flujosMuestra)-1
-       num2=bfs_shortest_path(tipo,flujosMuestra[num1],"END")
-       promedio=(num1/(num1+num2))*100
-       self.dataBase.actualizarPorcentajeMuestra(serial,sample,promedio)
-       #Falta modificar el porcentaje del caso, ademas de actualizar el flujo del caso segun el flujo mas bajo
+      id=self.dataBase.regresarID(serial,sample)
+      flujosMuestra=self.dataBase.retornarFlujos(id)
+      tipo=self.dataBase.regresarTipo(serial)
+      num1=len(flujosMuestra)-1
+      num2=bfs_shortest_path(tipo,flujosMuestra[num1],"END")
+      promedio=(num1/(num1+num2))*100
+      self.dataBase.actualizarPorcentajeMuestra(serial,sample,promedio)
+      #Falta modificar el porcentaje del caso, ademas de actualizar el flujo del caso segun el flujo mas bajo
+      total=0
+      data=self.dataBase.muestrasPorcentaje(serial)
+      for n in data:
+        total+=n[0]
+      promedio=total/len(data)
+
+      self.dataBase.actualizarPorcentajeCaso(serial,promedio)
+      print(self.dataBase.extraerFlujoMenor(serial))
+      self.dataBase.actualizarFlujoCaso(serial,self.dataBase.extraerFlujoMenor(serial)[0][0])
+
 
 
 
