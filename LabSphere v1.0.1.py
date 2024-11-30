@@ -1,11 +1,29 @@
 import json
 import re
+import os
 from datetime import datetime
 import sqlite3
 from collections import deque
-
+import pyfiglet
+from rich.console import Console
+from rich.table import Table
+from rich.progress import Progress
+from rich.markdown import Markdown
+from rich.tree import Tree
+from rich.json import JSON
+from rich.panel import Panel
+from rich.syntax import Syntax
+from rich.spinner import Spinner
+from rich.layout import Layout
+from rich.align import Align
+from rich.bar import Bar
+from rich.text import Text
+from rich.rule import Rule
 
 usuario="XXXXXX"
+
+version="v1.2.0"
+console=Console()
 
 #Cargar flujos del sistema desde el JSON
 with open("User Data/data.json", "r") as file:
@@ -453,8 +471,10 @@ labDB=conexionLab()
 
 #MODO LABORATORIO
 def laboratorio(proceso):
+    imprimirTitulo("Laboratory","magenta")
     flujo=proceso
     if flujo=="REGISTER":
+        console.print(f"[magenta]Complete the following fields to [bold]REGISTER[/bold] a case[/magenta]")
         serial=input("Enter serial number: ").upper()
 
         #salir al inicio si se presiona E
@@ -606,11 +626,45 @@ def laboratorio(proceso):
             print("Invalid flow")
             return
 
+def imprimirInicio():
+  os.system("CLS")
+  ascii_art = pyfiglet.figlet_format("LabSphere "+version, font="ogre")
+  #console.print(f"[blue]{ascii_art}[/blue]")
+  console.print(Panel(f"[blue]{ascii_art}[/blue]", border_style="cyan"))
+  console.print(f"[cyan]Welcome {usuario}![/cyan]")
+  console.print(Rule("",style="cyan"))
 
+def imprimirTitulo(text,color):
+  os.system("CLS")
+  ascii_art = pyfiglet.figlet_format(text, font="standard")
+  console.print(Panel(f"[{color}]{ascii_art}[/{color}]", border_style=color))
+  console.print(Rule("",style=color))
+  #[]
+  #{}
 
 
 while(1):
     #Solicitar un QR
+
+    while(usuario=="XXXXXX"):
+      imprimirInicio()
+      data=input("Scan a user code to continue: ").upper()
+      data=re.split(r"[\'\-]", data)
+
+      if(len(data)==2):
+        tipo=data[0]
+        proceso=data[1]
+        if(tipo=="USR"):
+           usuario=proceso
+      elif(data[0]=="E"):
+        print("Saliendo")
+        break
+
+    if(data[0]=="E"):
+        print("Saliendo")
+        break
+    
+    imprimirInicio()
     data=input("Scan a QR to continue: ").upper()
     #Procesar QR
     data=re.split(r"[\'\-]", data)
@@ -630,13 +684,10 @@ while(1):
       print("QR invalido")
       continue
 
-    if tipo=="USR":
-          usuario=proceso
+    
 
-    #Validar tipo
-    if usuario=="XXXXXX":
-       print("Please define a user to continue")
-    else:
-        if tipo=="LAB":
-          laboratorio(proceso)
+    if tipo=="LAB":
+      laboratorio(proceso)
+    elif(tipo=="USR"):
+      usuario=proceso
       
