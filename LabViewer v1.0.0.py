@@ -1,10 +1,13 @@
 import sys
 import random
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QHeaderView
+from PyQt5.QtGui import QFont
 from PyQt5 import uic
 from PyQt5 import  QtCore
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from datetime import datetime, timedelta
+import sqlite3
+import copy
 
 tiempoCambio=2 #Tiempo que dura en cambiar de elemnto
 
@@ -49,6 +52,46 @@ def generar_dato_aleatorio():
 
 #-------------------------------------------------------
 
+def extraerData():
+    conexion=sqlite3.connect("User Data/data.db")
+    cursor=conexion.cursor()
+    data=cursor.execute("SELECT SERIAL, COMPONENT,FLOW_CUR,FLOW_CUR_STATUS,NEXT_FLOW,ON_HOLD,PRIORITY,COMMENTS,ID FROM SAMPLES WHERE FLOW_CUR NOT IN ('END', 'Completo');")
+    salida=[]
+    for muestra in data.fetchall():
+        temp=copy.deepcopy(elementoBase)
+        temp["Serial"]=muestra[0]
+        temp["Componente"]=muestra[1]
+        temp["RutaActual"]=muestra[2]
+        temp["SiguienteRuta"]=muestra[4]
+        temp["Comentarios"]=muestra[7]
+        temp["EstatusRuta"]=muestra[3]
+        temp["Pausa"]=muestra[5]
+        temp["Prioridad"]=muestra[6]
+
+        consultaSerial=cursor.execute(f"SELECT CASE_NAME FROM CASES WHERE SERIAL={muestra[0]}")
+        temp["Caso"]=consultaSerial.fetchall()[0][0]
+
+        consultaMovimiento=cursor.execute(f"SELECT DATE, USER FROM SAMPLES_CHANGES WHERE SAMPLE={muestra[8]} ORDER BY DATE DESC LIMIT 1;")
+        movimiento=consultaMovimiento.fetchall()[0]
+        temp["Date"]=movimiento[0]
+        temp["Ingeniero"]=movimiento[1]
+
+        salida.append(temp)
+    conexion.close()
+    return salida
+
+# {"Caso":"",
+#               "Serial":"",-----------
+#               "Componente":"",----------
+#               "Date":"",
+#               "RutaActual":"",----------
+#               "SiguienteRuta":"",--------
+#               "Ingeniero":"",
+#               "Comentarios":"",--------
+#               "EstatusRuta":"",-------
+#               "Pausa":0,----------
+#               "Prioridad":0}--------
+
 class DataGenerationThread(QThread):
     # Señal para enviar los datos generados al hilo principal
     data_generated_signal = pyqtSignal(list)
@@ -56,7 +99,7 @@ class DataGenerationThread(QThread):
     def run(self):
         while True:
             # Generar datos aleatorios para la tabla
-            data = [generar_dato_aleatorio() for _ in range(30)]   # 5 filas x 3 columnas de números aleatorios
+            data = extraerData()
             self.data_generated_signal.emit(data)  # Emitir la señal con los datos generados
             prioridad_cero = sum(1 for dato in data if dato["Prioridad"] == 0)
 
@@ -75,12 +118,40 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("Interfaz/interfazLabView.ui", self)  # Cargar interfaz .ui
-
         # Configurar la tabla
         self.tabla = self.findChild(QTableWidget, "tabla")
         self.tabla.setRowCount(0)  # Número de filas
         self.tabla.setColumnCount(8)  # Número de columnas
         self.tabla.setHorizontalHeaderLabels(["Case", "Serial", "Component","Engineer","Date","Route","Next Route","Comments"])
+        self.tabla.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        font = QFont("Verdana", 12)  # Cambia la fuente y tamaño según lo necesites
+        self.tabla.setFont(font)
+
+        self.tabla.setStyleSheet("""
+    QTableWidget {
+        background-color: #262626;  /* Color de fondo de la tabla */
+        border: 1px solid #000000;   /* Borde de la tabla */
+        gridline-color: #cccccc;     /* Color de las líneas de la cuadrícula */
+    }
+    QTableWidget::item {
+        background-color: #262626;  /* Color de fondo de las celdas */
+        color: white;                /* Color del texto */
+        padding: 10px;               /* Espaciado dentro de las celdas */
+    }
+    QTableWidget::item:selected {
+        background-color: #007bff;   /* Color de fondo cuando un ítem está seleccionado */
+        color: white;                /* Color del texto cuando un ítem está seleccionado */
+    }
+""")
+        self.tabla.horizontalHeader().setStyleSheet("""
+    QHeaderView::section {
+        background-color: #202020;  /* Fondo verde */
+        color: white;               /* Color blanco para el texto */
+        font-size: 14px;            /* Tamaño de fuente */
+        padding: 10px;              /* Espaciado en los encabezados */
+    }
+""")
+
         self.tabla.horizontalHeader().setStretchLastSection(True)
 
         #Deshabilitar el scroll
@@ -107,15 +178,37 @@ class MainWindow(QMainWindow):
         self.tabla.setRowCount(len(self.data))
         # Llenar la tabla con los datos generados por el hilo
         for row in range(len(self.data)):
-            self.tabla.setItem(row,0,QTableWidgetItem(str(self.data[row]["Caso"])))
-            self.tabla.setItem(row,1,QTableWidgetItem(str(self.data[row]["Serial"])))
-            self.tabla.setItem(row,2,QTableWidgetItem(str(self.data[row]["Componente"])))
-            self.tabla.setItem(row,3,QTableWidgetItem(str(self.data[row]["Ingeniero"])))
-            self.tabla.setItem(row,4,QTableWidgetItem(str(self.data[row]["Date"])))
-            self.tabla.setItem(row,5,QTableWidgetItem(str(self.data[row]["RutaActual"])))
-            self.tabla.setItem(row,6,QTableWidgetItem(str(self.data[row]["SiguienteRuta"])))
-            self.tabla.setItem(row,7,QTableWidgetItem(str(self.data[row]["Comentarios"])))
-    
+            item_caso = QTableWidgetItem(str(self.data[row]["Caso"]))
+            item_serial = QTableWidgetItem(str(self.data[row]["Serial"]))
+            item_componente = QTableWidgetItem(str(self.data[row]["Componente"]))
+            item_ingeniero = QTableWidgetItem(str(self.data[row]["Ingeniero"]))
+            item_date = QTableWidgetItem(str(self.data[row]["Date"]))
+            item_ruta_actual = QTableWidgetItem(str(self.data[row]["RutaActual"]))
+            item_siguiente_ruta = QTableWidgetItem(str(self.data[row]["SiguienteRuta"]))
+            item_comentarios = QTableWidgetItem(str(self.data[row]["Comentarios"]))
+
+            # Centrar los ítems
+            item_caso.setTextAlignment(Qt.AlignCenter)
+            item_serial.setTextAlignment(Qt.AlignCenter)
+            item_componente.setTextAlignment(Qt.AlignCenter)
+            item_ingeniero.setTextAlignment(Qt.AlignCenter)
+            item_date.setTextAlignment(Qt.AlignCenter)
+            item_ruta_actual.setTextAlignment(Qt.AlignCenter)
+            item_siguiente_ruta.setTextAlignment(Qt.AlignCenter)
+            item_comentarios.setTextAlignment(Qt.AlignCenter)
+
+            #editar
+            # Añadir los ítems a la tabla
+            self.tabla.setItem(row, 0, item_caso)
+            self.tabla.setItem(row, 1, item_serial)
+            self.tabla.setItem(row, 2, item_componente)
+            self.tabla.setItem(row, 3, item_ingeniero)
+            self.tabla.setItem(row, 4, item_date)
+            self.tabla.setItem(row, 5, item_ruta_actual)
+            self.tabla.setItem(row, 6, item_siguiente_ruta)
+            self.tabla.setItem(row, 7, item_comentarios)
+
+            
     def moverIndice(self):
         if(len(self.data)>0 and self.filas_visibles()<len(self.data)):
             cont=0
