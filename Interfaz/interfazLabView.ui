@@ -40,12 +40,18 @@
           <property name="text">
            <string>TextLabel</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="contador">
           <property name="text">
            <string>TextLabel</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>

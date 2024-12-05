@@ -1,7 +1,7 @@
 import sys
 import random
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QHeaderView
-from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QHeaderView, QLabel
+from PyQt5.QtGui import QFont, QColor, QBrush, QPixmap
 from PyQt5 import uic
 from PyQt5 import  QtCore
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
@@ -119,24 +119,58 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi("Interfaz/interfazLabView.ui", self)  # Cargar interfaz .ui
         # Configurar la tabla
+        font = QFont("Verdana", 12)  # Cambia la fuente y tamaño según lo necesites
+
+
+        self.setStyleSheet("""QMainWindow{
+        background:#101010;}""")
+        self.logo=self.findChild(QLabel,"logo")
+        pixmap=QPixmap("User Data/ingrasysLogo_2.png")
+        self.logo.setPixmap(pixmap.scaled(200, 70, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        self.logo.setStyleSheet("""
+            QLabel{
+            padding:20px;
+            }
+        """)
+        
+        titulo=self.findChild(QLabel,"titulo")
+        titulo.setText("Laboratory Tracking")
+        fontTitulo= QFont("Verdana", 20)
+        titulo.setFont(fontTitulo)
+        titulo.setStyleSheet("""
+            QLabel{
+                color:white;
+
+            }
+        """)
+
+        self.contador=self.findChild(QLabel,"contador")
+        self.contador.setStyleSheet("""
+            QLabel{
+                color:white;
+                padding:20px;
+            }
+        """)
+        self.contador.setFont(font)
+        self.contador.setText("No. of samples: 0")
+
         self.tabla = self.findChild(QTableWidget, "tabla")
         self.tabla.setRowCount(0)  # Número de filas
         self.tabla.setColumnCount(8)  # Número de columnas
         self.tabla.setHorizontalHeaderLabels(["Case", "Serial", "Component","Engineer","Date","Route","Next Route","Comments"])
         self.tabla.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        font = QFont("Verdana", 12)  # Cambia la fuente y tamaño según lo necesites
         self.tabla.setFont(font)
 
         self.tabla.setStyleSheet("""
     QTableWidget {
         background-color: #262626;  /* Color de fondo de la tabla */
-        border: 1px solid #000000;   /* Borde de la tabla */
-        gridline-color: #cccccc;     /* Color de las líneas de la cuadrícula */
+        border: 1px solid #151515;   /* Borde de la tabla */
+        gridline-color: #101010;     /* Color de las líneas de la cuadrícula */
     }
+    
     QTableWidget::item {
-        background-color: #262626;  /* Color de fondo de las celdas */
         color: white;                /* Color del texto */
-        padding: 10px;               /* Espaciado dentro de las celdas */
+        padding: 10px;               /* Espaciado dentro de las celdas
     }
     QTableWidget::item:selected {
         background-color: #007bff;   /* Color de fondo cuando un ítem está seleccionado */
@@ -177,6 +211,7 @@ class MainWindow(QMainWindow):
     def mostrarData(self):
         self.tabla.setRowCount(len(self.data))
         # Llenar la tabla con los datos generados por el hilo
+        self.contador.setText(f"No. of samples: {len(self.data)}")
         for row in range(len(self.data)):
             item_caso = QTableWidgetItem(str(self.data[row]["Caso"]))
             item_serial = QTableWidgetItem(str(self.data[row]["Serial"]))
@@ -198,6 +233,12 @@ class MainWindow(QMainWindow):
             item_comentarios.setTextAlignment(Qt.AlignCenter)
 
             #editar
+            if(self.data[row]["Pausa"]==1):
+                item_caso.setBackground(QBrush(QColor(128,128,128)))
+            elif(self.data[row]["EstatusRuta"]=="IN"):
+                item_caso.setBackground(QBrush(QColor(119,217,120)))
+            elif((self.data[row]["EstatusRuta"]=="OUT")):
+                item_caso.setBackground(QBrush(QColor(224,80,76)))
             # Añadir los ítems a la tabla
             self.tabla.setItem(row, 0, item_caso)
             self.tabla.setItem(row, 1, item_serial)
