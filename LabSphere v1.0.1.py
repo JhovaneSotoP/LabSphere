@@ -30,6 +30,7 @@ console=Console()
 #FUNCIONES DE VISTA
 
 def imprimirInicio():
+  os.system("CLS")
   titulo = Text("◆ LabSphere " + version + " ◆", style="bold cyan", justify="center")
 
   desarrollador=Text("● Support: ", style="green",justify="left")
