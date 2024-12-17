@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 import sqlite3
 from collections import deque
-import pyfiglet
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress
