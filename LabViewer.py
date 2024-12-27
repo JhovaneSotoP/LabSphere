@@ -68,10 +68,14 @@ def extraerData():
         temp["Pausa"]=muestra[5]
         temp["Prioridad"]=muestra[6]
 
-        consultaSerial=cursor.execute(f"SELECT CASE_NAME FROM CASES WHERE SERIAL={muestra[0]}")
+        print(muestra[0])
+
+        consultaSerial=cursor.execute(f"SELECT CASE_NAME FROM CASES WHERE SERIAL=?",(muestra[0],))
+        
+       
         temp["Caso"]=consultaSerial.fetchall()[0][0]
 
-        consultaMovimiento=cursor.execute(f"SELECT DATE, USER FROM SAMPLES_CHANGES WHERE SAMPLE={muestra[8]} ORDER BY DATE DESC LIMIT 1;")
+        consultaMovimiento=cursor.execute(f"SELECT DATE, USER FROM SAMPLES_CHANGES WHERE SAMPLE=? ORDER BY DATE DESC LIMIT 1;",(muestra[8],))
         movimiento=consultaMovimiento.fetchall()[0]
         temp["Date"]=movimiento[0]
         temp["Ingeniero"]=movimiento[1]

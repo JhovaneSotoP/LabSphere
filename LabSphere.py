@@ -402,7 +402,8 @@ class conexionLab(dataBase):
         if str(MP).startswith("MP"):
           case_name=self.dataBase.ultimoRL()
           if case_name:
-              case_number=int(case_name[2:])+1
+              print(case_name)
+              case_number=int(case_name[3:])+1
               case_name = "RMP" + f"{case_number:03}"
           else:
               case_name="RMP001"
@@ -578,7 +579,7 @@ def laboratorio(proceso):
 
                     #salir al inicio si se presiona E
                     if(component=="E"):
-                        break
+                      break
 
                     componentes.append(component)
                 componentes=list(set(componentes))
