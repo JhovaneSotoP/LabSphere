@@ -22,7 +22,7 @@ import time
 
 usuario="XXXXXX"
 
-version="v1.3.0"
+version="v1.3.1"
 console=Console()
 
 
