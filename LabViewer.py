@@ -238,11 +238,11 @@ class MainWindow(QMainWindow):
 
             #editar
             if(self.data[row]["Pausa"]==1):
-                item_caso.setBackground(QBrush(QColor(128,128,128)))
+                item_ruta_actual.setBackground(QBrush(QColor(128,128,128)))
             elif(self.data[row]["EstatusRuta"]=="IN"):
-                item_caso.setBackground(QBrush(QColor(119,217,120)))
+                item_ruta_actual.setBackground(QBrush(QColor(119,217,120)))
             elif((self.data[row]["EstatusRuta"]=="OUT")):
-                item_caso.setBackground(QBrush(QColor(224,80,76)))
+                item_ruta_actual.setBackground(QBrush(QColor(224,80,76)))
             # Añadir los ítems a la tabla
             self.tabla.setItem(row, 0, item_caso)
             self.tabla.setItem(row, 1, item_serial)
