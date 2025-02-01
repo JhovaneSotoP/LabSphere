@@ -12,6 +12,8 @@ def labFuntions(funcion):
         buscarSerialData()
     elif(funcion=="COMMENT"):
         comentarMuestra()
+    elif(funcion=="INVENTORY"):
+        inventory()
 
 def buscarSerialData():
     consola=Console()
@@ -19,8 +21,6 @@ def buscarSerialData():
     serial=input("Enter a serial: ")
     imprimirTitulo("Serial data","cian")
     data=db.retornarSerialData(serial)
-
-    
 
     if(data["Componentes"]!=[]):
         tabla=Table(title="General data",show_header=False)
@@ -95,6 +95,21 @@ def comentarMuestra():
     else:
         imprimirError(f"Sample or serial not found")
 
+def inventory():
+    imprimirTitulo("General Inventory","magenta")
+    consola=Console()
+    data=db.regresarUbicaciones()
+    for n in data.keys():
+        tabla=Table(title=n)
+        tabla.add_column("Serial")
+        tabla.add_column("SAP PN")
+
+        for k in data[n]:
+            tabla.add_row(*k)
+        
+        consola.print(tabla)
+
+    msvcrt.getch()
 
 
         

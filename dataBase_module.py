@@ -111,6 +111,18 @@ class dataBase():
     except:
       return None
   
+  def consultaTodo3columnas(self,columnas1,columna2,columna3,tabla):
+    try:
+      self.conn = sqlite3.connect('User Data/data.db')
+      cursor = self.conn.cursor()
+      cursor.execute(f"SELECT {columnas1},{columna2},{columna3} FROM {tabla}")
+      result = cursor.fetchall()
+      self.conn.close()
+      return result
+    except Exception as e:
+      print(e)
+      return None
+  
   def actualizarGeneral(self,tabla,columna,dato,columnaCondicion1,valorCondicion1,columnaCondicion2,valorCondicion2):
     try:
       self.conn = sqlite3.connect('User Data/data.db')
@@ -592,6 +604,19 @@ class conexionLab(dataBase):
     
     def agregarComentarioSample(self,serial,sample,comentario):
       self.dataBase.actualizarGeneral("SAMPLES","COMMENTS",comentario,"SERIAL",serial,"COMPONENT",sample)
+    
+    def regresarUbicaciones(self):
+      consulta=self.dataBase.consultaTodo3columnas("SERIAL","LOCATION","PN_SAP","CASES")
+      salida={}
+      if consulta:
+        for n in consulta:
+          try:
+            salida[n[1]]+=[[n[0],n[2]]]
+          except:
+            salida.update({n[1]:[[n[0],n[2]]]})
+        return salida
+      else:
+        return None
 
 
     
