@@ -1,4 +1,4 @@
-from generalFuntions_module import imprimirError,imprimirExito,imprimirTitulo, tiempoActual
+from generalFuntions_module import imprimirError,imprimirExito,imprimirTitulo, tiempoActual,serialInput
 from rich.console import Console
 from dataBase_module import conexionLab
 import json
@@ -20,7 +20,7 @@ def laboratorio(proceso):
     if flujo=="REGISTER":
         imprimirTitulo("Laboratory","magenta")
         console.print(f"[magenta]Complete the following fields to [bold]REGISTER[/bold] a case[/magenta]")
-        serial=input("Enter serial number: ").upper()
+        serial=serialInput(input("Enter or scan serial number: "))
 
         #salir al inicio si se presiona E
         if(serial=="E"):
@@ -31,7 +31,18 @@ def laboratorio(proceso):
         if(labDB.serialIntoDB(serial)):
             imprimirError("Serial already in use")
         else:
-            
+            answer=input("This serial has a serial parent (YES/NO)? ").upper()
+
+            if(answer=="YES"):
+                serialParent=serialInput(input("Enter or scan serial parent: "))
+
+                if(serialParent=="E"):
+                    print("Saliendo")
+                    return
+                
+            elif(answer=="NO"):
+                serialParent="N/A"
+
             modelo=input("Enter model: ").upper()
 
             #salir al inicio si se presiona E
@@ -79,18 +90,15 @@ def laboratorio(proceso):
                 componentes=[]
 
                 print("")
-                print("Enter componentes separated by , or enter E to finish")
+                print("Enter componentes separated by , :")
 
-                while(1):
-                    component=input("Enter component: ").upper()
-                    component=component.split(",")
+                
+                componentes=input("Enter component: ").upper()
+                componentes=componentes.split(",")
 
-                    #salir al inicio si se presiona E
-                    if(component[0]=="E"):
-                      break
-                    
-                    for n in component:
-                        componentes.append(n)
+                #salir al inicio si se presiona E
+                if(componentes[0]=="E"):
+                    return
 
                 componentes=list(set(componentes))
 
@@ -102,7 +110,7 @@ def laboratorio(proceso):
                     return
 
                 if(len(componentes)>0):
-                    labDB.registrarCaso(serial,sap,modelo,tipoProceso,requisitor,MP,tiempo,componentes,comentario)
+                    labDB.registrarCaso(serial,serialParent,sap,modelo,tipoProceso,requisitor,MP,tiempo,componentes,comentario)
                 else:
                     imprimirError("Invalid quantity of components")
                     return

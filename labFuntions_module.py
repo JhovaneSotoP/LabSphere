@@ -23,10 +23,13 @@ def buscarSerialData():
     
 
     if(data["Componentes"]!=[]):
-        tabla=Table(title=data["Serial"],show_header=False)
+        tabla=Table(title="General data",show_header=False)
 
         tabla.add_column("a")
         tabla.add_column("b")
+
+        tabla.add_row("Serial",data["Serial"])
+        tabla.add_row("Parent Serial",data["serialPadre"])
 
         tabla.add_row("Case",data["caso"])
         tabla.add_row("Requisitor",data["requisitor"])

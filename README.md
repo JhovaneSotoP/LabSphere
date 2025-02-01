@@ -8,3 +8,4 @@ LabSphere es un software enfocado a realizar una administracion de casosy muestr
 - Agregar muestras solo por separación por comas.
 - Agregar JSON para poder solo ingresar datos definidos en el formulario de registro.
 - Dar pases por listado de muestras.
+- Agregar data de usuarios (Cada ususario debe tener un codigo unico).

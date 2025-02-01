@@ -29,6 +29,7 @@ class dataBase():
     self.conn = sqlite3.connect('User Data/data.db')
     self.conn.execute("""CREATE TABLE IF NOT EXISTS CASES(
       SERIAL TEXT PRIMARY KEY,
+      SERIALPARENT TEXT,
       CASE_NAME TEXT,
       MODEL TEXT,
       PN_SAP TEXT,
@@ -124,10 +125,10 @@ class dataBase():
       self.conn.close()
 
   #Pausado
-  def registrarCaso(self,serial,case_name,sap,model,type1,samples_no,requisitor,mp,date_in,date_out,status,percentage,comments):
+  def registrarCaso(self,serial,serialParent,case_name,sap,model,type1,samples_no,requisitor,mp,date_in,date_out,status,percentage,comments):
     self.conn = sqlite3.connect('User Data/data.db')
     cursor = self.conn.cursor()
-    cursor.execute("INSERT INTO CASES VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (serial, case_name, model,sap, type1, samples_no, requisitor, mp, date_in, date_out, status, percentage, comments,"UNDEFINED"))
+    cursor.execute("INSERT INTO CASES VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (serial,serialParent, case_name, model,sap, type1, samples_no, requisitor, mp, date_in, date_out, status, percentage, comments,"UNDEFINED"))
     self.conn.commit()
     self.conn.close()
 
@@ -353,7 +354,7 @@ class conexionLab(dataBase):
             return False
 
     #registar el caso y las muestras, ademas de los movimientos creados
-    def registrarCaso(self,serial,sap,modelo,tipoProceso,requisitor,MP,tiempo,componentes,comentario):
+    def registrarCaso(self,serial,serialParent,sap,modelo,tipoProceso,requisitor,MP,tiempo,componentes,comentario):
       #Enviar  SERIAL, CASE_NAME,MODEL, TYPE, SAMPLES_NO, REQUISITOR, MP, DATE_IN, DATE_OUT, STATUS, PERCENTAGE ,COMMENTS
         if str(MP).startswith("MP"):
           case_name=self.dataBase.ultimoRL()
@@ -367,7 +368,7 @@ class conexionLab(dataBase):
           case_name=MP
 
         fechaActual=tiempoActual()
-        self.dataBase.registrarCaso(serial,case_name,sap,modelo,tipoProceso,len(componentes),requisitor,MP,tiempo,"","REGISTER",0.0,comentario)
+        self.dataBase.registrarCaso(serial,serialParent,case_name,sap,modelo,tipoProceso,len(componentes),requisitor,MP,tiempo,"","REGISTER",0.0,comentario)
         imprimirExito(f"Case {case_name} registered", tiempo=0)
 
         #Registar samples and samples changes
@@ -544,6 +545,11 @@ class conexionLab(dataBase):
       if temp:
         dict.update({"location":temp[0][0]})
 
+      #extraer serial padre
+      temp=self.dataBase.consultaGeneral("SERIALPARENT","CASES","SERIAL",serial)
+      if temp:
+        dict.update({"serialPadre":temp[0][0]})
+
       return dict
     
     def retornarSamplesData(self,serial,samples):
@@ -575,6 +581,8 @@ class conexionLab(dataBase):
         data=self.dataBase.consultaGeneralDos("COMMENTS","SAMPLES","SERIAL",serial,"COMPONENT",n)
         if data:
           temp.update({"comentarios":data[0][0]})
+        
+        
         
         
 
