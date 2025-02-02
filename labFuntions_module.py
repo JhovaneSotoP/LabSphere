@@ -110,7 +110,7 @@ def inventory():
     consola=Console()
     data=db.regresarUbicaciones()
     for n in data.keys():
-        tabla=Table(title=n)
+        tabla=Table(title=f"{n} ({len(data[n])})")
         tabla.add_column("Serial")
         tabla.add_column("SAP PN")
 
