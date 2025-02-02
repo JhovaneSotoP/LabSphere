@@ -3,6 +3,7 @@ from rich.console import Console
 from dataBase_module import conexionLab
 import json
 import re
+import time
 
 
 
@@ -156,91 +157,86 @@ def laboratorio(proceso):
         if(flujo in flujos):
             imprimirTitulo("Laboratory","magenta")
             console.print(f"[magenta] ➤ [bold]{flujo}[/bold][/magenta]")
+            
+            #serial
+
+            serial=serialInput(input("Enter serial:"))
+
+            if(serial=="E"):
+                print("Saliendo")
+                return
             #Escanear el codigo de barras de la muestra
-            muestra=input("Scan sample´s barcode:").upper()
+            muestra=input("Scan sample´s:").upper()
 
             #Procesar el codigo de barras
-            muestra=re.split(r"[\'\-]", muestra)
+            muestra=muestra.split(",")
 
             if(muestra[0]=="E"):
                 print("Saliendo")
                 return
 
-            if(len(muestra)==1):
-                sample=input("Enter sample: ").upper()
-                if(sample=="E"):
-                    print("Saliendo")
-                    return
-                muestra.append(sample)
-            elif len(muestra)!=2:
-                imprimirError("Invalid barcode")
-                return
-
-            #comprobar si el serial y muestra estan en la base de datos
-            serial=muestra[0]
-            sample=muestra[1]
 
             #Si sample es ALL extraer los nombres de todas las muestras asociadas al serial y tratar de darles el pase
 
+            for sample in muestra:
+                if(labDB.serialAndSampleIntoDB(serial,sample)):
+                    #Extraer el actual flujo de la muestra y serial
+                    currentFlow=labDB.sampleCurrentFlow(serial,sample)
+                    #Extraer el siguiente flujo de la muestra y serial
+                    nextFlow=labDB.sampleNextFlow(serial,sample)
 
-            if(labDB.serialAndSampleIntoDB(serial,sample)):
-                #Extraer el actual flujo de la muestra y serial
-                currentFlow=labDB.sampleCurrentFlow(serial,sample)
-                #Extraer el siguiente flujo de la muestra y serial
-                nextFlow=labDB.sampleNextFlow(serial,sample)
+                    flowStatus=labDB.statusFlow(serial,sample)
 
-                flowStatus=labDB.statusFlow(serial,sample)
-
-                #acciones ante los flujos
-                if flujo=="END":
-                    #Validar si el siguiente flujo es END
-                    if flujo in nextFlow:
-                        if flowStatus=="IN":
-                          labDB.changeFlowStatus(serial,sample)
-                        labDB.toEndSample(serial,sample)
+                    #acciones ante los flujos
+                    if flujo=="END":
+                        #Validar si el siguiente flujo es END
+                        if flujo in nextFlow:
+                            if flowStatus=="IN":
+                                labDB.changeFlowStatus(serial,sample)
+                            labDB.toEndSample(serial,sample)
+                        else:
+                            imprimirError("Serial and sample can´t to END",tiempo=0)
+                            continue
                     else:
-                        imprimirError("Serial and sample can´t to END")
-                        return
+
+                        #validar si el flujo de la muestra es el mismo que se quiere registrar
+
+                        if(flujo==currentFlow):
+                            if flowStatus=="IN":
+                                labDB.changeFlowStatus(serial,sample)
+                                imprimirExito(f"Sample {sample} moved to {flujo} OUT",tiempo=0)
+                            else:
+                                imprimirError("Error, this flow is already give it",tiempo=0)
+                                continue
+                        #En caso que no y que la muestra tenga flujo out hacer lo siguiente
+                        elif(flowStatus=="OUT"):
+                            #Si esta el flujo en los siguientes flujos, hacer el cambio
+                            if(flujo in nextFlow):
+                                labDB.changeFlow(serial,sample,flujo)
+                                imprimirExito(f"Sample {sample} moved to {flujo}",tiempo=0)
+                            else:
+                                imprimirError("Error, flow is incorrect",tiempo=0)
+                                continue
+                        elif(flowStatus=="IN"):
+                            #Si esta el flujo en los siguientes flujos, hacer el cambio aunque no este salida del flujo y hacer el cambio de flujo
+                            if(flujo in nextFlow):
+                                labDB.changeFlowStatus(serial,sample)
+                                labDB.changeFlow(serial,sample,flujo)
+                                imprimirExito(f"Sample {sample} moved to {flujo}",tiempo=0)
+                            else:
+                                imprimirError("Error, flow is incorrect",tiempo=0)
+                                continue
+                        elif(flowStatus=="N/A"):
+                            imprimirError("Error, flow is incorrect",tiempo=0)
+                            continue
+                        else:
+                            imprimirError("Error, current flow needs to OUT",tiempo=0)
+                            continue
                 else:
+                    imprimirError(f"{serial} and {sample} is not into DB",tiempo=0)
+                    continue
+            time.sleep(3)
 
-                    #validar si el flujo de la muestra es el mismo que se quiere registrar
-
-                    if(flujo==currentFlow):
-                        if flowStatus=="IN":
-                            labDB.changeFlowStatus(serial,sample)
-                            imprimirExito(f"Sample {sample} moved to {flujo} OUT")
-                        else:
-                            imprimirError("Error, this flow is already give it")
-                            return
-                    #En caso que no y que la muestra tenga flujo out hacer lo siguiente
-                    elif(flowStatus=="OUT"):
-                        #Si esta el flujo en los siguientes flujos, hacer el cambio
-                        if(flujo in nextFlow):
-                            labDB.changeFlow(serial,sample,flujo)
-                            imprimirExito(f"Sample {sample} moved to {flujo}")
-                        else:
-                            imprimirError("Error, flow is incorrect")
-                            return
-                    elif(flowStatus=="IN"):
-                        #Si esta el flujo en los siguientes flujos, hacer el cambio aunque no este salida del flujo y hacer el cambio de flujo
-                        if(flujo in nextFlow):
-                            labDB.changeFlowStatus(serial,sample)
-                            labDB.changeFlow(serial,sample,flujo)
-                            imprimirExito(f"Sample {sample} moved to {flujo}")
-                        else:
-                            imprimirError("Error, flow is incorrect")
-                            return
-                    elif(flowStatus=="N/A"):
-                        imprimirError("Error, flow is incorrect")
-                        return
-                    else:
-                        imprimirError("Error, current flow needs to OUT")
-                        return
-
-
-            else:
-                imprimirError("Serial and sample is not into DB")
-                return
 
         else:
             imprimirError("Invalid flow")

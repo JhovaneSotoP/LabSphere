@@ -405,7 +405,8 @@ class conexionLab(dataBase):
         time.sleep(2)
 
     def serialAndSampleIntoDB(self,serial,sample):
-        data=self.dataBase.consultarTodo("SAMPLES","SERIAL",serial)
+        data=self.dataBase.consultaGeneralDos("SERIAL","SAMPLES","SERIAL",serial,"COMPONENT",sample)
+        
         if data:
             return True
         else:
