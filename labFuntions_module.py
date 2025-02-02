@@ -22,14 +22,20 @@ def buscarSerialData():
     imprimirTitulo("Serial data","cian")
     data=db.retornarSerialData(serial)
 
+
     if(data["Componentes"]!=[]):
         tabla=Table(title="General data",show_header=False)
 
         tabla.add_column("a")
         tabla.add_column("b")
+        if serial==data["Serial"]:
+            tabla.add_row("Serial",f"[black on_green]{data["Serial"]}[/black on_green]")
+            tabla.add_row("Parent Serial",data["serialPadre"])
+        else:
+            tabla.add_row("Serial",data["Serial"])
+            tabla.add_row("Parent Serial",f"[black on_green]{data["serialPadre"]}[/black on_green]")
 
-        tabla.add_row("Serial",data["Serial"])
-        tabla.add_row("Parent Serial",data["serialPadre"])
+        
 
         tabla.add_row("Case",data["caso"])
         tabla.add_row("Requisitor",data["requisitor"])
@@ -47,7 +53,7 @@ def buscarSerialData():
 
         consola.print(tabla)
 
-        data2=db.retornarSamplesData(serial,data["Componentes"])
+        data2=db.retornarSamplesData(data["Serial"],data["Componentes"])
 
         tabla2=Table(title=f"Components of {data["Serial"]} ({len(data["Componentes"])})")
         tabla2.add_column("Component")
@@ -68,6 +74,8 @@ def buscarSerialData():
         msvcrt.getch()
     else:
         imprimirError("There´s no information about this serial")
+
+
 
 def comentarMuestra():
     imprimirTitulo("Comment sample","pink")
@@ -94,6 +102,8 @@ def comentarMuestra():
         msvcrt.getch()
     else:
         imprimirError(f"Sample or serial not found")
+
+
 
 def inventory():
     imprimirTitulo("General Inventory","magenta")

@@ -40,6 +40,7 @@ def laboratorio(proceso):
                     print("Saliendo")
                     return
                 
+                
             elif(answer=="NO"):
                 serialParent="N/A"
 

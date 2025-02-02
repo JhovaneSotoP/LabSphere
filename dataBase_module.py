@@ -483,6 +483,15 @@ class conexionLab(dataBase):
 
 
     def retornarSerialData(self,serial):
+
+      serialPadre=self.dataBase.consultaGeneral("SERIAL","CASES","SERIALPARENT",serial)
+      
+      
+      
+      if serialPadre:
+        serial=serialPadre[0][0]
+        
+
       dict={}
       dict.update({"Serial":serial})
 
@@ -522,7 +531,6 @@ class conexionLab(dataBase):
       componentes=[]
       for n in self.dataBase.consultaGeneral("COMPONENT","SAMPLES","SERIAL",serial):
         componentes.append(n[0])
-
       dict.update({"Componentes":componentes})
 
       #extraer fecha de registro
@@ -571,6 +579,7 @@ class conexionLab(dataBase):
 
         #Extraer flujo
         data=self.dataBase.consultaGeneralDos("FLOW_CUR","SAMPLES","SERIAL",serial,"COMPONENT",n)
+
         if data:
           temp.update({"flujoActual":data[0][0]})
         
