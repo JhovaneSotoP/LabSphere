@@ -10,6 +10,9 @@ import re
 with open("User Data/data.json", "r") as file:
     flow = json.load(file)
 
+with open("User Data/general_data.json", "r") as file:
+    generalData = json.load(file)
+
 #MODO LABORATORIO
 
 
@@ -44,11 +47,21 @@ def laboratorio(proceso):
             elif(answer=="NO"):
                 serialParent="N/A"
 
+            
+            imprimirTitulo("Laboratory","magenta")
+            console.print(f"[magenta] Enter a valid model:[/magenta]")
+            for n in generalData["models"]:
+                print(f" - {n}")
+            print("")
             modelo=input("Enter model: ").upper()
 
             #salir al inicio si se presiona E
             if(modelo=="E"):
                 print("Saliendo")
+                return
+            
+            if not(modelo in generalData["models"]):
+                imprimirError("Wrong model")
                 return
             
             sap=input("Enter SAP PN: ").upper()
@@ -59,10 +72,15 @@ def laboratorio(proceso):
                 return
             
 
-            
+            imprimirTitulo("Laboratory","magenta")
+            console.print(f"[magenta] Enter a valid process:[/magenta]")
+            for n in flow.keys():
+                print(f" - {n}")
+
 
             tipoProceso=input("Enter type of process: ").upper()
 
+            
             #salir al inicio si se presiona E
             if(tipoProceso=="E"):
                 print("Saliendo")
@@ -100,6 +118,14 @@ def laboratorio(proceso):
                 #salir al inicio si se presiona E
                 if(componentes[0]=="E"):
                     return
+                
+                while "" in componentes:
+                    componentes.remove("")
+                
+                if len(componentes)==0:
+                    imprimirError("Invalid number of samples")
+                    return
+
 
                 componentes=list(set(componentes))
 

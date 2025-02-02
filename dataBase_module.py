@@ -381,7 +381,7 @@ class conexionLab(dataBase):
 
         fechaActual=tiempoActual()
         self.dataBase.registrarCaso(serial,serialParent,case_name,sap,modelo,tipoProceso,len(componentes),requisitor,MP,tiempo,"","REGISTER",0.0,comentario)
-        imprimirExito(f"Case {case_name} registered", tiempo=0)
+        imprimirExito(f"Case {case_name} with serial {serial} registered", tiempo=0)
 
         #Registar samples and samples changes
         #SERIAL, COMPONENT ,DATE_IN , DATE_OUT , FLOW_CUR ,NEXT_FLOW ,PERCENTAGE ,ON_HOLD ,PRIORITY ,COMMENTS
