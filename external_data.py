@@ -23,18 +23,21 @@ for n in df.values:
     try:
         db.registrarCaso(serial,serialPadre,caso,sap,modelo,proceso,muestrasNo,requisitor,mp,tiempoActual(),"","REGISTER",0.0,"")
         for n in componentes:
+
             flujosSiguientes=flow[proceso]["REGISTER"]
             flujoConcatenados=""
             for flujo in flujosSiguientes:
                 flujoConcatenados+=flujo+", "
-                flujoConcatenados=flujoConcatenados[:-2]
+            
+            flujoConcatenados=flujoConcatenados[:-2]
+
             db.registrarMuestras(serial,n,tiempoActual(),"","REGISTER",flujoConcatenados,0.0,0,0,"")
 
             id=db.ultimoIDAgregadoSample()
             #agregar movimiento in y out en los cambios
             db.registrarCambio(id,"REGISTER","IN",tiempoActual(),"SYSTEM")
             db.registrarCambio(id,"REGISTER","OUT",tiempoActual(),"SYSTEM")
-            imprimirExito(f"Serial {serial} Sample {n} registered", tiempo=0)
+            imprimirExito(f"Serial {serial} Sample {n} registered, next route {flujoConcatenados}", tiempo=0)
     except Exception as e:
         print(f"Error en {serial}: {e}")
 

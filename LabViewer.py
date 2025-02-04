@@ -55,7 +55,7 @@ def generar_dato_aleatorio():
 def extraerData():
     conexion=sqlite3.connect("User Data/data.db")
     cursor=conexion.cursor()
-    data=cursor.execute("SELECT SERIAL, COMPONENT,FLOW_CUR,FLOW_CUR_STATUS,NEXT_FLOW,ON_HOLD,PRIORITY,COMMENTS,ID FROM SAMPLES WHERE FLOW_CUR NOT IN ('END', 'Completo');")
+    data=cursor.execute("SELECT SERIAL, COMPONENT,FLOW_CUR,FLOW_CUR_STATUS,NEXT_FLOW,ON_HOLD,PRIORITY,COMMENTS,ID FROM SAMPLES WHERE FLOW_CUR NOT IN ('END', 'Completo','REGISTER');")
     salida=[]
     for muestra in data.fetchall():
         temp=copy.deepcopy(elementoBase)
