@@ -114,6 +114,7 @@ def laboratorio(proceso):
 
                 
                 componentes=input("Enter component: ").upper()
+                componentes=componentes.replace(" ","")
                 componentes=componentes.split(",")
 
                 #salir al inicio si se presiona E
@@ -169,6 +170,7 @@ def laboratorio(proceso):
             muestra=input("Scan sample´s:").upper()
 
             #Procesar el codigo de barras
+            muestra=muestra.replace(" ","")
             muestra=muestra.split(",")
 
             if(muestra[0]=="E"):

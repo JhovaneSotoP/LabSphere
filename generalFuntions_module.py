@@ -54,5 +54,8 @@ def bfs_shortest_path(flow_type, start, end):
     return -1  # Retornar -1 si no hay ruta
 
 def serialInput(serial):
-  serial=re.split(r"[-,']", serial)
+  serial=re.split(r"[-, ']", serial)
   return(serial[0])
+
+if __name__=="__main__":
+  print(serialInput(input("Prueba de serial: ")))
