@@ -1,4 +1,4 @@
-import pandas as pd
+from pandas import read_excel as pd
 from dataBase_module import dataBase
 from generalFuntions_module import tiempoActual,imprimirExito
 import json
@@ -6,7 +6,7 @@ import json
 with open("User Data/data.json", "r") as file:
     flow = json.load(file)
 
-df=pd.read_excel("User Data/DATA_lab.xlsx",skiprows=0,usecols="A,B,C,D,E,F,G,H,I,J")
+df=pd("User Data/DATA_lab.xlsx",skiprows=0,usecols="A,B,C,D,E,F,G,H,I,J")
 db=dataBase()
 for n in df.values:
     serial=n[0]
@@ -39,6 +39,7 @@ for n in df.values:
             db.registrarCambio(id,"REGISTER","OUT",tiempoActual(),"SYSTEM")
             imprimirExito(f"Serial {serial} Sample {n} registered, next route {flujoConcatenados}", tiempo=0)
     except Exception as e:
+        db.conn.close()
         print(f"Error en {serial}: {e}")
 
     

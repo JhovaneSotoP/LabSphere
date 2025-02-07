@@ -3,7 +3,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 import msvcrt
-from generalFuntions_module import imprimirTitulo,imprimirError, imprimirExito
+from generalFuntions_module import imprimirTitulo,imprimirError, imprimirExito,serialInput
 
 
 db=conexionLab()
@@ -18,7 +18,7 @@ def labFuntions(funcion):
 def buscarSerialData():
     consola=Console()
     imprimirTitulo("Serial data","cyan")
-    serial=input("Enter a serial: ")
+    serial=serialInput(input("Enter a serial: "))
     imprimirTitulo("Serial data","cian")
     data=db.retornarSerialData(serial)
 
@@ -68,7 +68,16 @@ def buscarSerialData():
         
         consola.print(tabla2)
 
-
+        for n in data["Componentes"]:
+            tabla3=Table(title=f"{n} component detail")
+            tabla3.add_column("DATE")
+            tabla3.add_column("ENGINEER")
+            tabla3.add_column("ROUTE")
+            tabla3.add_column("STATUS")
+            for k in db.regresarMovimientosSmaple(data["Serial"],n):
+                tabla3.add_row(*k)
+            
+            consola.print(tabla3)
         
 
         msvcrt.getch()
@@ -109,6 +118,7 @@ def inventory():
     imprimirTitulo("General Inventory","magenta")
     consola=Console()
     data=db.regresarUbicaciones()
+    data=dict(sorted(data.items()))
     for n in data.keys():
         tabla=Table(title=f"{n} ({len(data[n])})")
         tabla.add_column("Serial")

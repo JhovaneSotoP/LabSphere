@@ -346,6 +346,17 @@ class dataBase():
     cursor.execute("UPDATE CASES SET STATUS = ? WHERE SERIAL = ?", (flujo, serial))
     self.conn.commit()
     self.conn.close()
+  
+  def extraerMovimientosSample(self,id):
+    self.conn = sqlite3.connect('User Data/data.db')
+    cursor = self.conn.cursor()
+    cursor.execute("SELECT DATE,USER,FLOW,FLOW_STATUS FROM SAMPLES_CHANGES WHERE SAMPLE = ?", (id,))
+    result = cursor.fetchall()
+    self.conn.close()
+    if result:
+      return result
+    else:
+      return None
 
   def cerrar(self):
     self.conn.close()
@@ -624,6 +635,16 @@ class conexionLab(dataBase):
             salida[n[1]]+=[[n[0],n[2]]]
           except:
             salida.update({n[1]:[[n[0],n[2]]]})
+        return salida
+      else:
+        return None
+    
+    def regresarMovimientosSmaple(self,serial,sample):
+      id=self.regresarID(serial,sample)
+      salida=[]
+      if id:
+        for n in self.dataBase.extraerMovimientosSample(id):
+          salida.append(n)
         return salida
       else:
         return None

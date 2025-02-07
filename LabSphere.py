@@ -29,7 +29,7 @@ from generalFuntions_module import imprimirError,imprimirExito, imprimirTitulo, 
 
 usuario="XXXXXX"
 
-version="v1.5.1"
+version="v1.5.3"
 console=Console()
 
 def modoUsuario(data):
