@@ -14,6 +14,8 @@ def labFuntions(funcion):
         comentarMuestra()
     elif(funcion=="INVENTORY"):
         inventory()
+    elif(funcion=="SAMPLEDATA"):
+        sampledata()
 
 def buscarSerialData():
     consola=Console()
@@ -67,19 +69,7 @@ def buscarSerialData():
             tabla2.add_row(n,data2[n]["flujoActual"],data2[n]["estadoActual"],data2[n]["siguienteFlujo"],str(data2[n]["porcentaje"]),data2[n]["comentarios"])
         
         consola.print(tabla2)
-
-        for n in data["Componentes"]:
-            tabla3=Table(title=f"{n} component detail")
-            tabla3.add_column("DATE")
-            tabla3.add_column("ENGINEER")
-            tabla3.add_column("ROUTE")
-            tabla3.add_column("STATUS")
-            for k in db.regresarMovimientosSmaple(data["Serial"],n):
-                tabla3.add_row(*k)
-            
-            consola.print(tabla3)
         
-
         msvcrt.getch()
     else:
         imprimirError("There´s no information about this serial")
@@ -130,6 +120,40 @@ def inventory():
         consola.print(tabla)
 
     msvcrt.getch()
+
+def sampledata():
+    consola=Console()
+    imprimirTitulo("SAMPLE DATA","cyan")
+    serial=serialInput(input("Enter serial number: "))
+    sample=input("Enter sample: ")
+    general=db.retornarSamplesData(serial,[sample])
+    detail=db.regresarMovimientosSmaple(serial,sample)
+
+    if detail:
+        imprimirTitulo(f"{serial}-{sample} DATA","cyan")
+        tabla1=Table(title="GENERAL",show_header=False)
+        tabla1.add_column("A")
+        tabla1.add_column("B")
+
+        tabla1.add_row("Route",general[sample]["flujoActual"])
+        tabla1.add_row("Status",general[sample]["estadoActual"])
+        tabla1.add_row("Next Route",general[sample]["siguienteFlujo"])
+        tabla1.add_row("Percentaje",str(general[sample]["porcentaje"]))
+        tabla1.add_row("Comments",general[sample]["comentarios"])
+        consola.print(tabla1)
+
+        tabla2=Table(title="DETAIL")
+        tabla2.add_column("DATE")
+        tabla2.add_column("ENGINEER")
+        tabla2.add_column("ROUTE")
+        tabla2.add_column("STATUS")
+
+        for n in detail:
+            tabla2.add_row(*n)
+        
+        consola.print(tabla2)
+    msvcrt.getch()
+        
 
 
         

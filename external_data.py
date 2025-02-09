@@ -1,4 +1,5 @@
 from pandas import read_excel as pd
+from pandas import notnull 
 from dataBase_module import dataBase
 from generalFuntions_module import tiempoActual,imprimirExito
 import json
@@ -14,10 +15,18 @@ for n in df.values:
     modelo=n[2]
     sap=n[3]
     proceso=n[4]
-    muestrasNo=n[5]
+
+    try:
+        muestrasNo=int(n[5])
+    except:
+        muestrasNo=1
+
     requisitor=n[6]
     mp=n[7]
-    serialPadre=n[8]
+    if notnull(n[8]):
+        serialPadre=int(n[8])
+    else:
+        serialPadre="N/A"
     componentes=n[9].split(",")
 
     try:

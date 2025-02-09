@@ -1,6 +1,7 @@
 import json
 import re
 import os
+import shutil
 from datetime import datetime
 import sqlite3
 from collections import deque
@@ -29,7 +30,7 @@ from generalFuntions_module import imprimirError,imprimirExito, imprimirTitulo, 
 
 usuario="XXXXXX"
 
-version="v1.5.3"
+version="v1.5.4"
 console=Console()
 
 def modoUsuario(data):
@@ -78,14 +79,20 @@ with open("User Data/data.json", "r") as file:
     flow = json.load(file)
 
 
-
+def respaldo():
+  os.makedirs("User Data/Respaldo/",exist_ok=True)
+  try:
+    shutil.copy("User Data/data.db",f"User Data/Respaldo/{tiempoActual()[0:10]}.db")
+  except Exception as e:
+    print(e)
+    time.sleep(3)
 
 #objetos Globales
 labDB=conexionLab()
 
 
 
-
+respaldo()
 while(1):
     #Solicitar un QR
     while(usuario=="XXXXXX"):
