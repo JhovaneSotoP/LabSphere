@@ -49,7 +49,7 @@ def imprimirInicio():
   desarrollador.append("jhovane.soto@fii-na.com", style="white")
 
   manual=Text("Click ",style="white", justify="left")
-  manual.append("here", style="magenta link https://chatgpt.com/")
+  manual.append("here", style=f"magenta link {generalData["userManual"]}")
   manual.append(" to open user manual", style="white")
 
   usuario_cad = Text("\n ‣ User: " + usuario, style="white", justify="left")
@@ -78,11 +78,14 @@ def imprimirInicio():
 with open("User Data/data.json", "r") as file:
     flow = json.load(file)
 
+with open("User Data/general_data.json", "r") as file:
+    generalData = json.load(file)
+
 
 def respaldo():
   os.makedirs("User Data/Respaldo/",exist_ok=True)
   try:
-    shutil.copy("User Data/data.db",f"User Data/Respaldo/{tiempoActual()[0:10]}.db")
+    shutil.copy("User Data/data.db",f"User Data/Respaldo/database_{tiempoActual()[0:10]}.db")
   except Exception as e:
     print(e)
     time.sleep(3)
