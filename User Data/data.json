@@ -1,11 +1,10 @@
 {
     "DNP": {
         "REGISTER": [
-            "CUTTING",
             "CLEANING"
         ],
         "CUTTING": [
-            "CLEANING"
+            "EPOXY"
         ],
         "CLEANING": [
             "DYEING"
@@ -14,21 +13,28 @@
             "DRYING"
         ],
         "DRYING": [
-            "EPOXY"
+            "EPOXY",
+            "CUTTING"
         ],
         "EPOXY": [
+            "CURING"
+        ],
+        "CURING":[
             "PULL TEST"
         ],
         "PULL TEST": [
-            "INSPECTION"
+            "INSPECTION",
+            "EPOXY"
         ],
         "INSPECTION": [
             "REPORTING"
         ],
         "REPORTING": [
+            "SCRAP"
+        ],
+        "SCRAP": [
             "END"
         ],
-        
         "END":[]
     },
     "XS": {
@@ -53,9 +59,11 @@
             "GRINDING"
         ],
         "REPORTING": [
+            "SCRAP"
+        ],
+        "SCRAP": [
             "END"
         ],
-        
         "END":[]
     }
 }

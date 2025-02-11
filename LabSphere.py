@@ -30,7 +30,7 @@ from generalFuntions_module import imprimirError,imprimirExito, imprimirTitulo, 
 
 usuario="XXXXXX"
 
-version="v1.5.4"
+
 console=Console()
 
 def modoUsuario(data):
@@ -39,11 +39,13 @@ def modoUsuario(data):
   else:
     return None
 
+with open("User Data/general_data.json", "r") as file:
+    generalData = json.load(file)
 #FUNCIONES DE VISTA
 
 def imprimirInicio():
   os.system("CLS")
-  titulo = Text("◆ LabSphere " + version + " ◆", style="bold cyan", justify="center")
+  titulo = Text("◆ LabSphere " + generalData["version"] + " ◆", style="bold cyan", justify="center")
 
   desarrollador=Text("● Support: ", style="green",justify="left")
   desarrollador.append("jhovane.soto@fii-na.com", style="white")
@@ -78,8 +80,7 @@ def imprimirInicio():
 with open("User Data/data.json", "r") as file:
     flow = json.load(file)
 
-with open("User Data/general_data.json", "r") as file:
-    generalData = json.load(file)
+
 
 
 def respaldo():

@@ -48,7 +48,7 @@ def buscarSerialData():
         tabla.add_row("Date In",data["fechaEntrada"])
         tabla.add_row("Date Out",data["fechaSalida"])
         tabla.add_row("Status",data["flujoActual"])
-        tabla.add_row("Progress",str(data["percentaje"]))
+        tabla.add_row("Progress",f"{data["percentaje"]:.2f}%")
         tabla.add_row("Location",str(data["location"]))
         tabla.add_row("Comments",data["COMMENTS"])
         
@@ -66,7 +66,7 @@ def buscarSerialData():
         tabla2.add_column("Comments")
 
         for n in data["Componentes"]:
-            tabla2.add_row(n,data2[n]["flujoActual"],data2[n]["estadoActual"],data2[n]["siguienteFlujo"],str(data2[n]["porcentaje"]),data2[n]["comentarios"])
+            tabla2.add_row(n,data2[n]["flujoActual"],data2[n]["estadoActual"],data2[n]["siguienteFlujo"],f"{data2[n]["porcentaje"]:.2f}%",data2[n]["comentarios"])
         
         consola.print(tabla2)
         

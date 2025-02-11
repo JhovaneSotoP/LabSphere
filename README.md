@@ -22,7 +22,7 @@ LabSphere es un software enfocado a realizar una administracion de casos y muest
 # Mejoras
 - [ ] Agregar data de usuarios (Cada usuario debe tener un codigo unico).
 - [x] Generar copia de seguridad.
-- [ ] Corregir error en asignacion de porcentaje de casos.
+- [x] Corregir error en asignacion de porcentaje de casos.
 - [x] Agregar URL del manual a archivo JSON de información general.
 - [ ] Generar buffer de registro con opcion para imprimir etiquetas.
 - [ ] Generar archivo de inventario al consultar inventario general.

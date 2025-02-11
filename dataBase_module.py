@@ -482,12 +482,23 @@ class conexionLab(dataBase):
       num2=bfs_shortest_path(tipo,flujosMuestra[num1],"END")
       promedio=(num1/(num1+num2))*100
       self.dataBase.actualizarPorcentajeMuestra(serial,sample,promedio)
+
       #Falta modificar el porcentaje del caso, ademas de actualizar el flujo del caso segun el flujo mas bajo
       total=0
-      data=self.dataBase.muestrasPorcentaje(serial)
+      data=self.consultaGeneral("COMPONENT","SAMPLES","SERIAL",serial)
+      info=[]
       for n in data:
-        total+=n[0]
-      promedio=total/len(data)
+        info.append(n[0])
+      data=self.retornarSamplesData(serial,info)
+
+      for n in data.keys():
+        total+=data[n]["porcentaje"]
+      
+      cant=self.dataBase.consultaGeneral("SAMPLES_NO","CASES","SERIAL",serial)[0][0]
+      
+      promedio=total/int(cant)
+
+      time.sleep(2)
 
       self.dataBase.actualizarPorcentajeCaso(serial,promedio)
       self.dataBase.actualizarFlujoCaso(serial,self.dataBase.extraerFlujoMenor(serial)[0][0])
