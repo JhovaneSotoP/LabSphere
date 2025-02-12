@@ -86,7 +86,11 @@ with open("User Data/data.json", "r") as file:
 def respaldo():
   os.makedirs("User Data/Respaldo/",exist_ok=True)
   try:
-    shutil.copy("User Data/data.db",f"User Data/Respaldo/database_{tiempoActual()[0:10]}.db")
+    if os.path.exists(f"User Data/Respaldo/database_{tiempoActual()[0:10]}.db"):
+      pass
+    else:
+      shutil.copy("User Data/data.db",f"User Data/Respaldo/database_{tiempoActual()[0:10]}.db")
+      
   except Exception as e:
     print(e)
     time.sleep(3)

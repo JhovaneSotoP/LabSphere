@@ -16,6 +16,8 @@ def labFuntions(funcion):
         inventory()
     elif(funcion=="SAMPLEDATA"):
         sampledata()
+    elif(funcion=="LOCDETAIL"):
+        locdetail()
 
 def buscarSerialData():
     consola=Console()
@@ -154,7 +156,29 @@ def sampledata():
         consola.print(tabla2)
     msvcrt.getch()
         
+def locdetail():
+    imprimirTitulo("LOCDETAIL","blue")
+    location=input("SCAN LOCATION: ").upper()
+    data=db.consultaGeneral("SERIAL","CASES","LOCATION",location)
+    consola=Console()
+    salida=[]
+    for n in data:
+        salida.append(db.retornarSerialData(n[0]))
+    
+    imprimirTitulo(location,"blue")
+    tabla=Table(title=f"{len(salida)} units")
+    tabla.add_column("SERIAL")
+    tabla.add_column("MODEL")
+    tabla.add_column("SAP PN")
+    tabla.add_column("SERIAL PARENT")
+    tabla.add_column("PROCESS")
+    tabla.add_column("ROUTE")
 
+    for n in salida:
+        tabla.add_row(n["Serial"],n["modelo"],n["sap"],n["serialPadre"],n["tipo"],n["flujoActual"])
+    
+    consola.print(tabla)
+    msvcrt.getch()
 
         
     
