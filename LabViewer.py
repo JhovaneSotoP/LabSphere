@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import sqlite3
 import copy
 import json
+import pyautogui
 
 with open("User data/general_data.json","r") as file:
     generalData=json.load(file)
@@ -102,6 +103,7 @@ class timer(QThread):
         while(1):
             self.sleep(tiempoCambio)
             self.girar.emit()
+            pyautogui.press("shift")
 
 
 class MainWindow(QMainWindow):

@@ -27,4 +27,4 @@ LabSphere es un software enfocado a realizar una administracion de casos y muest
 - [ ] Generar buffer de registro con opcion para imprimir etiquetas.
 - [ ] Generar archivo de inventario al consultar inventario general.
 - [ ] Crear funcion para fichar las unidades por EVA.
-- [ ] Crear función que evite que el equipo dónde se ejecute entre en modo suspención.
+- [x] Crear función que evite que el equipo dónde se ejecute entre en modo suspensión.
