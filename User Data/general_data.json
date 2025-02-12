@@ -6,5 +6,7 @@
         "PG525"
     ],
     "userManual":"https://www.deepseek.com/",
-    "version":"v1.5.5"
+    "version":"v1.5.5",
+    "updateTimeViewer": 5,
+    "forbiddenRoutes":["END", "REGISTER","SCRAP"]
 }

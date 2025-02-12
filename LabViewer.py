@@ -8,8 +8,14 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from datetime import datetime, timedelta
 import sqlite3
 import copy
+import json
 
-tiempoCambio=2 #Tiempo que dura en cambiar de elemnto
+with open("User data/general_data.json","r") as file:
+    generalData=json.load(file)
+
+
+tiempoCambio=generalData["updateTimeViewer"]
+#Tiempo que dura en cambiar de elemnto
 
 elementoBase={"Caso":"",
               "Serial":"",
@@ -23,39 +29,21 @@ elementoBase={"Caso":"",
               "Pausa":0,
               "Prioridad":0}
 
-# Lista de valores posibles para cada campo
-componentes = ["Resistor", "Capacitor", "Microchip", "Diodo", "Transistor"]
-rutas = ["Inspección", "Ensamblaje", "Pruebas", "Empaque", "Almacenaje"]
-ingenieros = ["Juan Pérez", "Ana Gómez", "Carlos Torres", "Laura Ramírez", "José Fernández"]
-comentarios_posibles = ["Sin comentarios", "Requiere revisión", "Pendiente de aprobación", "Completado", "Error detectado"]
-estatus_ruta = ["En proceso", "Completo", "Pendiente", "Pausado"]
-
-# Generador de datos aleatorios-----------------------------------------
-def generar_dato_aleatorio():
-    # Crear una fecha aleatoria
-    date_in = datetime.now() - timedelta(days=random.randint(0, 30))
-    date_out = date_in + timedelta(days=random.randint(1, 5))
-    
-    return {
-        "Caso": f"C{random.randint(1000, 9999)}",
-        "Serial": f"S{random.randint(100000, 999999)}",
-        "Componente": random.choice(componentes),
-        "Date": date_in.strftime("%Y-%m-%d"),
-        "RutaActual": random.choice(rutas),
-        "SiguienteRuta": random.choice(rutas),
-        "Ingeniero": random.choice(ingenieros),
-        "Comentarios": random.choice(comentarios_posibles),
-        "EstatusRuta": random.choice(estatus_ruta),
-        "Pausa": random.randint(0, 1),
-        "Prioridad": random.randint(0, 1)
-    }
-
+flujosProhibidos=generalData["forbiddenRoutes"]
 #-------------------------------------------------------
+def queryFlujosProhibidos():
+    salida=""
+    for n in flujosProhibidos:
+        salida+="'"+n+"',"
+    salida=salida[:len(salida)-1]
+    salida="("+salida+")"
+    return salida
+
 
 def extraerData():
     conexion=sqlite3.connect("User Data/data.db")
     cursor=conexion.cursor()
-    data=cursor.execute("SELECT SERIAL, COMPONENT,FLOW_CUR,FLOW_CUR_STATUS,NEXT_FLOW,ON_HOLD,PRIORITY,COMMENTS,ID FROM SAMPLES WHERE FLOW_CUR NOT IN ('END', 'Completo','REGISTER');")
+    data=cursor.execute(f"SELECT SERIAL, COMPONENT,FLOW_CUR,FLOW_CUR_STATUS,NEXT_FLOW,ON_HOLD,PRIORITY,COMMENTS,ID FROM SAMPLES WHERE FLOW_CUR NOT IN {queryFlujosProhibidos()};")
     salida=[]
     for muestra in data.fetchall():
         temp=copy.deepcopy(elementoBase)
@@ -68,7 +56,6 @@ def extraerData():
         temp["Pausa"]=muestra[5]
         temp["Prioridad"]=muestra[6]
 
-        print(muestra[0])
 
         consultaSerial=cursor.execute(f"SELECT CASE_NAME FROM CASES WHERE SERIAL=?",(muestra[0],))
         
@@ -102,7 +89,6 @@ class DataGenerationThread(QThread):
 
     def run(self):
         while True:
-            # Generar datos aleatorios para la tabla
             data = extraerData()
             self.data_generated_signal.emit(data)  # Emitir la señal con los datos generados
             prioridad_cero = sum(1 for dato in data if dato["Prioridad"] == 0)
@@ -136,6 +122,7 @@ class MainWindow(QMainWindow):
             padding:20px;
             }
         """)
+        self.logo.mousePressEvent=self.on_click
         
         titulo=self.findChild(QLabel,"titulo")
         titulo.setText("Laboratory Tracking")
@@ -211,12 +198,15 @@ class MainWindow(QMainWindow):
         self.rotarThread.start()
         # Mostrar la ventana en pantalla completa
         self.showFullScreen()
+
+        self.indices=[]
     
     def mostrarData(self):
-        self.tabla.setRowCount(len(self.data))
-        # Llenar la tabla con los datos generados por el hilo
+        self.tabla.setRowCount(self.filas_visibles())
+
         self.contador.setText(f"No. of samples: {len(self.data)}")
-        for row in range(len(self.data)):
+
+        for pos,row in enumerate(self.indices):
             item_caso = QTableWidgetItem(str(self.data[row]["Caso"]))
             item_serial = QTableWidgetItem(str(self.data[row]["Serial"]))
             item_componente = QTableWidgetItem(str(self.data[row]["Componente"]))
@@ -244,51 +234,64 @@ class MainWindow(QMainWindow):
             elif((self.data[row]["EstatusRuta"]=="OUT")):
                 item_ruta_actual.setBackground(QBrush(QColor(224,80,76)))
             # Añadir los ítems a la tabla
-            self.tabla.setItem(row, 0, item_caso)
-            self.tabla.setItem(row, 1, item_serial)
-            self.tabla.setItem(row, 2, item_componente)
-            self.tabla.setItem(row, 3, item_ingeniero)
-            self.tabla.setItem(row, 4, item_date)
-            self.tabla.setItem(row, 5, item_ruta_actual)
-            self.tabla.setItem(row, 6, item_siguiente_ruta)
-            self.tabla.setItem(row, 7, item_comentarios)
+            self.tabla.setItem(pos, 0, item_caso)
+            self.tabla.setItem(pos, 1, item_serial)
+            self.tabla.setItem(pos, 2, item_componente)
+            self.tabla.setItem(pos, 3, item_ingeniero)
+            self.tabla.setItem(pos, 4, item_date)
+            self.tabla.setItem(pos, 5, item_ruta_actual)
+            self.tabla.setItem(pos, 6, item_siguiente_ruta)
+            self.tabla.setItem(pos, 7, item_comentarios)
 
             
     def moverIndice(self):
-        if(len(self.data)>0 and self.filas_visibles()<len(self.data)):
-            cont=0
-            while cont<len(self.data):
-                if(self.data[cont]["Prioridad"]==0):
-                    temp=self.data[cont]
-                    self.data.pop(cont)
-                    self.data.append(temp)
-                    break
+        if(len(self.data)>0):
+            if self.filas_visibles()>len(self.data):
+                
+                self.indices=[]
+                for indice,n in enumerate(self.data):
+                    self.indices.append(indice)
+                
+                print("Ingreso a filas es menor que la cantidad de datos")
+            else:
+                
+                if len(self.indices)>0:
+                    
+                    temp=self.indices[0]+1
+                    self.indices=[]
+                    for n in range(self.filas_visibles()):
+                        if n>len(self.data):
+                            temp=0
+                        self.indices.append(temp)
+                        temp+=1
+                    print("Ingreso a indices es mayor a 0")
                 else:
-                    cont+=1
+                    self.indices=[]
+                    for indice in range(self.filas_visibles()):
+                        self.indices.append(indice) 
+
+                    print(self.indices)
+                    print("Ingreso a indices es menor a 0")
+        else:
+            self.indices=[]
         self.mostrarData()
 
 
     def update_data(self, data):
         self.data=data
-        self.mostrarData()
+        #self.mostrarData()
 
     def filas_visibles(self):
-    # Altura total del área visible
-        altura_visible = self.tabla.viewport().height()
-        
-        # Altura promedio de una fila
-        if self.tabla.rowCount() > 0:
-            altura_fila = self.tabla.rowHeight(0)  # Asume que todas las filas tienen la misma altura
-        else:
-            return 0  # No hay filas
-        
-        # Número de filas que caben en el área visible
-        return altura_visible // altura_fila
+        return 32
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.showNormal()  # Volver al tamaño normal al presionar Escape
         super().keyPressEvent(event)
+    
+    def on_click(self, event):
+        # Llamar a showFullScreen desde aquí
+        self.showFullScreen()
 
 
 # Configurar la aplicación y mostrar la ventana
