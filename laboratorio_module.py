@@ -1,4 +1,4 @@
-from generalFuntions_module import imprimirError,imprimirExito,imprimirTitulo, tiempoActual,serialInput
+from generalFuntions_module import imprimirError,imprimirExito,imprimirTitulo, tiempoActual,serialInput,samplesInput
 from rich.console import Console
 from dataBase_module import conexionLab
 import json
@@ -112,10 +112,7 @@ def laboratorio(proceso):
                 print("")
                 print("Enter componentes separated by , :")
 
-                
-                componentes=input("Enter component: ").upper()
-                componentes=componentes.replace(" ","")
-                componentes=componentes.split(",")
+                componentes=samplesInput(input("Enter component: "))
 
                 #salir al inicio si se presiona E
                 if(componentes[0]=="E"):
@@ -127,9 +124,6 @@ def laboratorio(proceso):
                 if len(componentes)==0:
                     imprimirError("Invalid number of samples")
                     return
-
-
-                componentes=list(set(componentes))
 
                 comentario=input("Enter a comment: ")
 
@@ -167,11 +161,8 @@ def laboratorio(proceso):
                 print("Saliendo")
                 return
             #Escanear el codigo de barras de la muestra
-            muestra=input("Scan sample´s:").upper()
+            muestra=samplesInput(input("Scan sample´s: "))
 
-            #Procesar el codigo de barras
-            muestra=muestra.replace(" ","")
-            muestra=muestra.split(",")
 
             if(muestra[0]=="E"):
                 print("Saliendo")

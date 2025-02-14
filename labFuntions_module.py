@@ -3,7 +3,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 import msvcrt
-from generalFuntions_module import imprimirTitulo,imprimirError, imprimirExito,serialInput
+from generalFuntions_module import imprimirTitulo,imprimirError, imprimirExito,serialInput,samplesInput
 
 
 db=conexionLab()
@@ -127,7 +127,7 @@ def sampledata():
     consola=Console()
     imprimirTitulo("SAMPLE DATA","cyan")
     serial=serialInput(input("Enter serial number: "))
-    sample=input("Enter sample: ")
+    sample=samplesInput(input("Enter sample: "))[0]
     general=db.retornarSamplesData(serial,[sample])
     detail=db.regresarMovimientosSmaple(serial,sample)
 
@@ -154,6 +154,8 @@ def sampledata():
             tabla2.add_row(*n)
         
         consola.print(tabla2)
+    else:
+        imprimirError("There´s no information about this sample")
     msvcrt.getch()
         
 def locdetail():

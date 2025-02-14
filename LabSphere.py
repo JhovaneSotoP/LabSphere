@@ -39,6 +39,8 @@ def modoUsuario(data):
   else:
     return None
 
+
+
 with open("User Data/general_data.json", "r") as file:
     generalData = json.load(file)
 #FUNCIONES DE VISTA
@@ -90,7 +92,7 @@ def respaldo():
       pass
     else:
       shutil.copy("User Data/data.db",f"User Data/Respaldo/database_{tiempoActual()[0:10]}.db")
-      
+
   except Exception as e:
     print(e)
     time.sleep(3)
