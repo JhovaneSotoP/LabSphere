@@ -101,8 +101,9 @@ class timer(QThread):
 
     def run(self):
         while(1):
-            self.sleep(tiempoCambio)
             self.girar.emit()
+            self.sleep(tiempoCambio)
+            
             pyautogui.press("shift")
 
 
@@ -262,7 +263,7 @@ class MainWindow(QMainWindow):
                     temp=self.indices[0]+1
                     self.indices=[]
                     for n in range(self.filas_visibles()):
-                        if n>len(self.data):
+                        if temp>len(self.data)-1:
                             temp=0
                         self.indices.append(temp)
                         temp+=1
